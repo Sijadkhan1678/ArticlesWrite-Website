@@ -6,7 +6,7 @@ connectDB();
 
 PORT = 4000 || env.production
 
-app.use('/api/users',require('./routes/Register'));
-
+app.use('/api/regiser',require('./routes/Register'));
+app.use('/api/articles',require('./routes/articles'));
 //app.use('/api/auth',auth);
-app.listen(PORT,()=> console.log('server runining') )
+app.listen(PORT,()=> console.log(`server runining ${PORT}`) )
