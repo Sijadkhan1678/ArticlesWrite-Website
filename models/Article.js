@@ -3,12 +3,12 @@ const mongoose = require('mongoose');
 const articleSchema= mongoose.Schema({
    user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref : 'users'
+    ref : 'user'
    },
    
    article_avatar: {
-     path: [Buffer],
-     required: true
+     type: String
+     
    },
    
     title: {
@@ -25,7 +25,7 @@ const articleSchema= mongoose.Schema({
              {
               user : {
                    type: mongoose.Schema.Types.ObjectId,
-                   ref: 'users'
+                   
    
                },
            like: {
@@ -42,7 +42,7 @@ const articleSchema= mongoose.Schema({
       user: {
         
            type: mongoose.Schema.Types.ObjectId,
-           ref: 'users'
+           ref: 'user'
         },
         
         text:{
