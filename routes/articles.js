@@ -7,15 +7,15 @@ const {check,validationResult}= require('express-validator')
 const Article= require('../models/Article');
 
 // *********** method : POST 
-//  *********** Routes : api/artile
+//  *********** Routes : api/artiles
 // ************ Desc :   Add Article
 // ************ Access : Private
 
 
-router.get('/',[
+router.post('/',[
   check('title', 'Enter title atleast 12  charactors').notEmpty().isLength({min: 12}),
-  check('description', 'Enter  description 30 charactors').isLength({min: 30})
-], async (req,res)= {
+  check('text', 'Enter  description 30 charactors').isLength({min: 30})
+], async (req,res)=> {
       
    const errors=  validationResult(req);
    
@@ -24,22 +24,24 @@ router.get('/',[
      } 
    const {title,description} = req.body;
    
+   
    try {
      const article = new Article({
                 
-                title,
-                description
+               title: title,
+                description: text
                 
      
              })
      
      await article.save()
+
    
    
    }
      catch(err){
      
-     if err throw console.error(err.message)
+     if (err) console.error(err.message)
      res.status(500).send('server error')
    }
    

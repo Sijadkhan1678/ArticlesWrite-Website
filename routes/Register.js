@@ -2,6 +2,7 @@
 const express= require('express');
 const router = express.Router();
 const {check,validationResult}= require('express-validator');
+const config = require('config')
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
@@ -20,24 +21,25 @@ const User = require('../models/User');
  ], async (req,res)=>{
     const errors= validationResult(req);
     if (!errors.isEmpty()){
-      res.status(400).json({msg: error.array()})
+      res.status(400).json({msg: errors.array()})
     
     }
     
-    const {email,password}= req.body
+    const {name,email,password}= req.body
     
   try{  
   
-     let user= await USer.findOne({email})
+     let user= await User.findOne({email})
   
     if(user)  {
-    return  res.json(400).json({msg: 'User with email already exist'});
+    return  res.status(400).json({msg: 'User with this email already exist'});
     
     }
       user = new User({
-     name,
-     password,
-     email
+        name,
+        email,
+        password
+  
      
      })
      
@@ -57,15 +59,15 @@ const User = require('../models/User');
     }
     
     jwt.sign(payload,config.get('jwtSecret'),{
-    expiresIn: '13 h'
-    },(token,err)=>{
+    expiresIn: 3600000
+    },(err,token)=>{
         if(err) throw err
        res.json({token})
     
     })
     }
     catch(err){
-    if(err)  console.error(err.message)
+      console.error(err.message)
     res.status(500).send('server error')
     
     }

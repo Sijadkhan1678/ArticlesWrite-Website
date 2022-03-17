@@ -17,7 +17,8 @@ const UserSchema = mongoose.Schema(
        },
      password: {
            type: String,
-           required: true
+           required: true,
+           unique: true
           
 
 
@@ -25,7 +26,7 @@ const UserSchema = mongoose.Schema(
 
       date: {
         type: String,
-        default: Date.now()
+        default: Date.now
 
 
       }

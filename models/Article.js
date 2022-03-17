@@ -39,7 +39,7 @@ const articleSchema= mongoose.Schema({
    comments: [
    {
         
-      user: {
+      commentby: {
         
            type: mongoose.Schema.Types.ObjectId,
            ref: 'user'
@@ -54,7 +54,7 @@ const articleSchema= mongoose.Schema({
         
         commentAt: {
             type: Date,
-            default: Date.now()
+            default: Date.now
         }   
    
           }
@@ -62,7 +62,7 @@ const articleSchema= mongoose.Schema({
    
    createdAt: {
               type: Date,
-              default: Date.now()
+              default: Date.now
    }
     
 
