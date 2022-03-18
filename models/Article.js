@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 
 const articleSchema= mongoose.Schema({
-   user: {
+   writtenby: {
     type: mongoose.Schema.Types.ObjectId,
-    ref : 'user'
+    ref : 'Profile'
    },
    
    article_avatar: {
