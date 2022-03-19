@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 
 const articleSchema= mongoose.Schema({
-   writtenby: {
+   auther: {
     type: mongoose.Schema.Types.ObjectId,
-    ref : 'Profile'
+    ref : 'user'
    },
    
    article_avatar: {
@@ -21,19 +21,17 @@ const articleSchema= mongoose.Schema({
        required: true
    
    },
+   catagory: [String],
+
    likes : [
-             {
-              user : {
+            { 
+             likeby:  {
                    type: mongoose.Schema.Types.ObjectId,
                    
    
-               },
-           like: {
-             type: Boolean,
-             default : false
-             
-           }
-         }
+               }
+           
+            }
            ],
            
    comments: [

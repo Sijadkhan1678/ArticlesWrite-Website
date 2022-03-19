@@ -10,33 +10,28 @@ const ProfileSchema= Schema({
       
           } ,
           
-    avatar:  {
-       
-      type: String,
-       
-   
-         },
     bio : {
-    type : String
-    
+     
+           type : String,
+           required: true
     
     } ,
     
    social  : {
         facebook : {
-           type: String
+            type: String
         },
         
         github: {
-           type: String
+            type: String
         },
         
         linkdin: {
-          type: String
+            type: String
         },
         
         twitter:{
-        type: String
+           type: String
         
         }
    

@@ -23,6 +23,10 @@ const UserSchema = mongoose.Schema(
 
 
       },
+      photo: {
+         type: String
+      
+      },
 
       date: {
         type: String,
@@ -32,8 +36,6 @@ const UserSchema = mongoose.Schema(
       }
      
 
-    }
-
-)
+    })
 
 module.exports= mongoose.model('user',UserSchema)
