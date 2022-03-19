@@ -34,8 +34,7 @@ const multerStorage= multer.diskStorage({
 
 router.get('/', async (req,res)=>{
    try{
-         const articles= await Article.find()
-         //.populate('user','name photo')
+         const articles= await Article.find().populate('auther','name photo')
          console.log(articles)
          res.json(articles)
          
@@ -161,10 +160,10 @@ const {text}= req.body
 
   router.delete('/uncomment:id',async (req,res)=>{
        
-    const postId= req.body._id
+    const articleId= req.body._id
       try{
       
-       let article= await findOne(postId);
+       let article= await findOne(articleId);
        if(!article){
        
        res.status(404).json({msg: 'Article not found'})
@@ -194,6 +193,21 @@ const {text}= req.body
 
   })
 
+  router.post('/like:id', async (req,res)=>{
+    
+    
+    const ArtilcetId = req.body._id;
+     try {
+
+        
+
+      }
+     catch(err){
+      console.error(err.message)
+      res.status(500).send('server error')
+    }
+
+  })
 
 
 

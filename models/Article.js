@@ -6,7 +6,7 @@ const articleSchema= mongoose.Schema({
     ref : 'user'
    },
    
-   article_avatar: {
+   avatar: {
      type: String
      
    },
