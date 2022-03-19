@@ -34,7 +34,8 @@ const multerStorage= multer.diskStorage({
 
 router.get('/', async (req,res)=>{
    try{
-         const articles= await Article.find().populate('user','name photo')
+         const articles= await Article.find()
+         //.populate('user','name photo')
          console.log(articles)
          res.json(articles)
          
@@ -137,7 +138,7 @@ const {text}= req.body
       
       }
       
-     const article =  Article.findByIdAndUpdate(req.params.id,{
+      article =  Article.findByIdAndUpdate(req.params.id,{
      
              $push: { comments:newComment }
      
