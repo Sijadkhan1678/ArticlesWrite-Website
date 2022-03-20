@@ -25,7 +25,7 @@ const articleSchema= mongoose.Schema({
 
    likes : [
             { 
-             likeby:  {
+               {
                    type: mongoose.Schema.Types.ObjectId,
                    
    
