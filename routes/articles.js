@@ -12,6 +12,7 @@ const multerStorage= multer.diskStorage({
           
           filename: function(req,file,callback){
           
+            callback(null)
           
           
           }
@@ -196,12 +197,35 @@ const {text}= req.body
   router.post('/like:id', async (req,res)=>{
     
     
-    const ArtilcetId = req.body._id;
+    const articleId = req.params._id;
+    
+    
      try {
-
+       let user= await User.find(req.user.id)
+       
+       let article =  await  Article.find(articleId);
+       
+       if(!user){
+       
+       res.status(401).json({msg: 'User not autherized'})
+     
+            }
+            
+       if(!article){
+       
+       res.status(404).json({msg: 'Article not found'})
+      
+       }
+       
+       article = await Article.findByIdAndUpdate(articleId,{
+       $push: { likes: req.user.id }
+       
+       });
+       
+       res.json(article);
         
-
       }
+      
      catch(err){
       console.error(err.message)
       res.status(500).send('server error')
@@ -209,6 +233,41 @@ const {text}= req.body
 
   })
 
+   router.delete('/unlike:id',(req,res)=>{
+    
+     let articleId= req.params.id;
+     
+   try{
+   
+      let user = await User.find(req.user.id);
+      
+      let article= await Article.find(articleId);
+
+      if(!user){
+
+      res.status(404).json({msg: 'User not found'})
+
+          }
+
+      if(!article){
+      
+         res.status(404).json({msg: 'Article not found'})
+      }
+      
+      article = await Article.findByIdAndUpdate(articleId,{
+
+      $pull: {likes: req.user.id}  })
+
+      res.json('unlike')
+
+      }
+
+      catch(err){
+      console.error(err.message);
+      res.status(500).send('server error')
+      }
+   
+   })
 
 
 

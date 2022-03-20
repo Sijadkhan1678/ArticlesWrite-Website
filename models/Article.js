@@ -24,14 +24,14 @@ const articleSchema= mongoose.Schema({
    catagory: [String],
 
    likes : [
-            { 
+            
                {
                    type: mongoose.Schema.Types.ObjectId,
                    
    
                }
            
-            }
+            
            ],
            
    comments: [
@@ -58,10 +58,11 @@ const articleSchema= mongoose.Schema({
           }
              ],
    
-   createdAt: {
+   createAt: {
               type: Date,
               default: Date.now
-   }
+
+             }
     
 
 
