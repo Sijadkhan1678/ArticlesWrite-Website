@@ -4,8 +4,8 @@
    const multer = require('multer');
    const {check,validationResult}= require('express-validator');
 
-const User = require('../models/User');
-const Article= require('../models/Article');
+   const User = require('../models/User');
+   const Article= require('../models/Article');
 
 
 const multerStorage= multer.diskStorage({
@@ -94,7 +94,7 @@ router.get('/article/:id', async (req,res)=>{
 // ************ Access : Private
 
 
-router.post('/',[upload.single('avatarFile'),
+router.post('/',[upload.single('avatar'),
  [ check('title', 'Enter title should be 12  charactors').notEmpty().isLength({min: 12}),
  check('description', 'description should be 30 charactors').isLength({min: 30})
 ]], async (req,res)=> {
@@ -133,6 +133,48 @@ router.post('/',[upload.single('avatarFile'),
    
 } );
 
+// *********** method  : PUT 
+//  *********** Routes : api/artiles/article/:id
+// ************ Desc   : update Article
+// ************ Access : Private
+
+   router.put('/artcle/:id',upload.single('avatar'), async (req,res)=>{
+   
+    const {title,description,catagory}= req.body
+    const articleId= req.params.id
+    try{
+    
+      const article= await Article.findOne(articleId);
+      if(!article){
+      
+      return res.status(404).json({msg: 'Article not found'});
+      
+      }
+   
+    if( !article.user.toString() === req.user.id){
+    
+     return res.status().json({msg: 'You are not autherized to update this article'});
+     }
+      const articleField= {};
+      
+      if (title)       articleField.title= title;
+      if (description) article.Field= description;
+      if (catagory)    articleFiled = catagory;
+      if (req.file.filename)     articleField.avatar = req.file.filename;
+      
+      article = await Article.findByIdAndUpdate(articleId, {$set : articleField},{new: true}).populate('user',['photo','name']);
+
+      res.json(article)
+    }
+    catch(err){
+    
+    console.error(err.message);
+    res.status(500).send('server error')
+    }
+       
+   
+   })
+
 router.post('/comment/:id',[
 check('text','please enter text atleast 2 charactors').isLength({min:3})
 
@@ -145,6 +187,7 @@ if(!errors.isEmpty()){
 }
 const {text,_id}= req.body
 console.log(text,id)
+
  try{
  
      let user= await User.findOne(req.user.id);
