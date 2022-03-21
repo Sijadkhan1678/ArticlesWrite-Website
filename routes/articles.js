@@ -162,7 +162,7 @@ router.post('/',[upload.single('avatar'),
       if (catagory)    articleFiled = catagory;
       if (req.file.filename)     articleField.avatar = req.file.filename;
       
-      article = await Article.findByIdAndUpdate(articleId, {$set : articleField},{new: true}).populate('user',['photo','name']);
+      article = await Article.findByIdAndUpdate(articleId, {$set : articleField});
 
       res.json(article)
     }
@@ -173,7 +173,45 @@ router.post('/',[upload.single('avatar'),
     }
        
    
+   });
+   
+   
+   // *********** method  : DELETE 
+//  *********** Routes : api/artiles/article/:id
+// ************ Desc   : Remove Article
+// ************ Access : Private
+
+   router.delete('/artcle/:id', async (req,res)=>{
+   
+    
+    const articleId= req.params.id
+    try{
+    
+      const article= await Article.findOne(articleId);
+      if(!article){
+      
+      return res.status(404).json({msg: 'Article not found'});
+      
+      }
+   
+    if( !article.user.toString() === req.user.id){
+    
+     return res.status().json({msg: 'You are not autherized to delete this article'});
+     }
+      
+      article = await Article.findByIdAndRemove(articleId);
+
+      res.json({msg: 'Article successfully deleted'})
+    }
+    catch(err){
+    
+    console.error(err.message);
+    res.status(500).send('server error')
+    }
+       
+   
    })
+
 
 router.post('/comment/:id',[
 check('text','please enter text atleast 2 charactors').isLength({min:3})
