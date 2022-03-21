@@ -3,11 +3,38 @@ const router = express.Router();
 const config = require('config')
 const bcrypt = require('bcryptjs');
 const jwt =    require(jsonwebtoken)
+const auth = require('../middleware/auth')
 const {check,validationResult} = require ('express-validator');
 
 
-// ##########  description method POST 
-//   ##########  Routes /api/auth
+
+// ##########   method :   GET
+// ##########   Routes   /api/auth
+// ##########   desc     get logged in user
+// ##########   access   private
+
+  router.get('/',auth, async (req,res)=>{
+  
+       try{
+       
+       const user = await findById(req.user.id)
+       
+       res.json(user)
+       }
+       catch(err){
+       console.error(err.message)
+       res.status(500).send('server error')
+       } 
+  
+  
+  })
+
+
+// ##########   method :   POST
+// ##########   Routes   /api/auth
+// ##########   desc     autherize user and get the token
+// ##########   access   public
+
 
 router.post('/',[
 check('email','please enter valid email',).isEmail(),
