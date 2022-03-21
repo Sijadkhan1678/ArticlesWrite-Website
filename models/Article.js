@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const articleSchema= mongoose.Schema({
-   auther: {
+   author: {
     type: mongoose.Schema.Types.ObjectId,
     ref : 'user'
    },

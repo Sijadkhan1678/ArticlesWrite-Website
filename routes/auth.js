@@ -1,4 +1,4 @@
-const express = require ('express');
+const express = require('express');
 const router = express.Router();
 const config = require('config')
 const bcrypt = require('bcryptjs');
@@ -51,21 +51,21 @@ check('password','please enter password').isEmpty()
    // here we use payload to generate token for that user and in the response gives token.
    
    
-   jwt.sign(payload,config.get('jwtSecrte'),{
+   jwt.sign(payload,config.get('jwtSecret'),{
    
    // after two hours token will be expired
-   expiresIn: '2h'
+   expiresIn: '6 days'
    
    },
    (token,err) =>{
-   if (err) throw errr;
+   if (err) throw err;
    // with this token gives right to access his/her data in the database 
    res.json(token)
    })
    
    }
    catch(err){
-  console.error(error.message);
+  console.error(err.message);
   res.status(500).sent('server error')
    
    }

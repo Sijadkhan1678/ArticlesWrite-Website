@@ -1,8 +1,12 @@
 
-const express = require('express');
-const router = express.Router();
-const multer = require('multer');
-const {check,validationResult}= require('express-validator')
+   const express = require('express');
+   const router = express.Router();
+   const multer = require('multer');
+   const {check,validationResult}= require('express-validator');
+
+const User = require('../models/User');
+const Article= require('../models/Article');
+
 
 const multerStorage= multer.diskStorage({
 
@@ -11,20 +15,33 @@ const multerStorage= multer.diskStorage({
           },
           
           filename: function(req,file,callback){
+          const ext = file.memitype.split('/')[1];
           
-            callback(null)
-          
+            callback(null,`article_picture${file.Date.now()}${file.originalname}.${ext}`);
           
           }
           
-
 })
+
+const filterImg= (req,file,callback)=>{
+       const ext = file.memitype.split('/')[1];
+       if(ext=== 'jpeg' || ext === 'png'){
+       
+       callback(null,true)
+       
+       }else{
+       callback(new error(`${ext} file not allowed`),false)
+       }
+
+
+   }
  
-  const upload = multer({storage: multerStorage})
+  const upload = multer({storage: multerStorage,
+  
+                       fileFilter: filterImg
+  })
 
-     const User = require('../models/User');
-     const Article= require('../models/Article');
-
+   
 
 
 // ***********  method : GET
@@ -49,14 +66,25 @@ router.get('/', async (req,res)=>{
        })
        
        
- // *********** method : GET
-//  *********** Routes : api/artiles
-// ************ Desc :   GET spicific Article
-// ************ Access : Public
+   // *********** method : GET
+  //  *********** Routes : api/artiles
+  // ************ Desc :   GET spicific Article
+ // ************ Access : Public
 
-router.get('/:id', async (req,res)=>{
+router.get('/article/:id', async (req,res)=>{
+  
+  try{
 
-          const article= await articles.find(req.params.id).populate('comments').populate('user').select(photos,name);
+          const article= await Article.find(req.params._id).populate('author','name avatar');
+          
+          res.json(article)
+  }
+  catch(err){
+
+    console.error(err.message)
+    res.status(500).send('server error')
+  }
+
 
 })
 
@@ -66,10 +94,10 @@ router.get('/:id', async (req,res)=>{
 // ************ Access : Private
 
 
-router.post('/',[
-  check('title', 'Enter title should be 12  charactors').notEmpty().isLength({min: 12}),
+router.post('/',[upload.single('avatarFile'),
+ [ check('title', 'Enter title should be 12  charactors').notEmpty().isLength({min: 12}),
  check('description', 'description should be 30 charactors').isLength({min: 30})
-], async (req,res)=> {
+]], async (req,res)=> {
       
    const errors=  validationResult(req);
    
@@ -80,18 +108,18 @@ router.post('/',[
   
    
    try {
-     const article = new Article({
+     const newArticle = new Article({
                auther: req.user.id ,
                article_avatar,
                title,
                description,
                catagory,
-               
+               avatar: req.file.filename
                 
              
              })
      
-     await article.save()
+    const article=  await newArticle.save()
 
    console.log('successfully created')
    res.json(article)
@@ -105,7 +133,7 @@ router.post('/',[
    
 } );
 
-router.post('/comment:id',[
+router.post('/comment/:id',[
 check('text','please enter text atleast 2 charactors').isLength({min:3})
 
 ], async (req,res)=>{
@@ -115,8 +143,8 @@ const errors = validationResult(req);
 if(!errors.isEmpty()){
     res.status(400).json({errors: errors.array() })
 }
-const {text}= req.body
-
+const {text,_id}= req.body
+console.log(text,id)
  try{
  
      let user= await User.findOne(req.user.id);
@@ -124,7 +152,7 @@ const {text}= req.body
      let article= await Article.find(req.params._id)
       if(!user){
       
-      res.status(401).json({msg: 'You don`t have correct autherization to add comment this post'});
+    res.status(401).json({msg: 'You don`t have correct autherization to add comment this post'});
       
       } 
       if(!article){
@@ -134,20 +162,18 @@ const {text}= req.body
       } 
       const newComment= {
       text,
-      commentby: req.user.id
+      commentby: id
+    //  commentby: req.user.id
       
       }
       
-      article =  Article.findByIdAndUpdate(req.params.id,{
+      comments =  Article.findByIdAndUpdate(req.params.id,{
      
-             $push: { comments:newComment }
+             $push: { comments:newComment} },{new: true
      
-     })
+     }).populate('comments.commentby','avatar name');
       
-      
-      
-      
-      res.json(article)
+      res.json(comments)
       
  }
  catch(err){
@@ -159,7 +185,7 @@ const {text}= req.body
 
 })
 
-  router.delete('/uncomment:id',async (req,res)=>{
+  router.delete('/uncomment/:id',async (req,res)=>{
        
     const articleId= req.body._id
       try{
@@ -193,8 +219,14 @@ const {text}= req.body
 
 
   })
+  
+   // *********** method : POST
+  //  *********** Routes : api/artiles/like/:id
+ // ************  Desc :   like Article
+ // ************  Access : private
 
-  router.post('/like:id', async (req,res)=>{
+
+  router.post('/like/:id', async (req,res)=>{
     
     
     const articleId = req.params._id;
@@ -232,8 +264,14 @@ const {text}= req.body
     }
 
   })
+     
+     //  ***********  method : Delete
+    //   ***********  Routes : api/artiles/unlike/:di
+   //    ***********  Desc :   Unlike Article
+  //    ************  Access :  private  
 
-   router.delete('/unlike:id',(req,res)=>{
+
+   router.delete('/unlike/:id', async (req,res)=>{
     
      let articleId= req.params.id;
      
@@ -258,7 +296,7 @@ const {text}= req.body
 
       $pull: {likes: req.user.id}  })
 
-      res.json('unlike')
+      res.json('post unlike')
 
       }
 

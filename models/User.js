@@ -23,7 +23,7 @@ const UserSchema = mongoose.Schema(
 
 
       },
-      photo: {
+      avatar: {
          type: String
       
       },

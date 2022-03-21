@@ -1,7 +1,7 @@
 {
-  "name": "Ecommerce Final project of axiom",
+  "name": "DevWrite Website",
   "version": "1.0.0",
-  "description": "",
+  "description": "this webiste purpose is that developer write article about his/her knowledge ",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
