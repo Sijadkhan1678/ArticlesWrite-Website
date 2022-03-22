@@ -17,9 +17,10 @@ const {check,validationResult} = require ('express-validator');
   
        try{
        
-       const user = await findById(req.user.id)
+       const user = await findById(req.user.id).select(-password)
        
        res.json(user)
+       
        }
        catch(err){
        console.error(err.message)
@@ -30,10 +31,10 @@ const {check,validationResult} = require ('express-validator');
   })
 
 
-// ##########   method :   POST
-// ##########   Routes   /api/auth
-// ##########   desc     autherize user and get the token
-// ##########   access   public
+// ##########   method :  POST
+// ##########   Routes :  /api/auth
+// ##########   desc   :  autherize user and get the token
+// ##########   access :  public
 
 
 router.post('/',[

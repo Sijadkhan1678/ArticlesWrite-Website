@@ -182,9 +182,9 @@ router.post('/',[upload.single('avatar'),
 // ************ Access : Private
 
    router.delete('/artcle/:id', async (req,res)=>{
-   
     
     const articleId= req.params.id
+    
     try{
     
       const article= await Article.findOne(articleId);
