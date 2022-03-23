@@ -11,10 +11,6 @@ connectDB();
 app.use(express.json({extended: false}))
 app.use('/api/register',require('./routes/Register'));
 app.use('/api/articles',require('./routes/articles'));
-
-
-
-
 //app.use('/api/auth',auth);
 PORT = 4000 || env.production
    

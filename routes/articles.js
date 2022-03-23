@@ -2,6 +2,7 @@
    const express = require('express');
    const router = express.Router();
    const multer = require('multer');
+  const auth   = require('../middleware/auth')
    const {check,validationResult}= require('express-validator');
 
    const User = require('../models/User');
@@ -15,17 +16,17 @@ const multerStorage= multer.diskStorage({
           },
           
           filename: function(req,file,callback){
-          const ext = file.memitype.split('/')[1];
+          const ext = file.mimetype.split('/')[1];
           
-            callback(null,`article_picture${file.Date.now()}${file.originalname}.${ext}`);
+            callback(null,`article-${file.fieldname}-${Date.now()}${file.originalname.trim()}.${ext}`);
           
           }
           
 })
 
 const filterImg= (req,file,callback)=>{
-       const ext = file.memitype.split('/')[1];
-       if(ext=== 'jpeg' || ext === 'png'){
+       const ext = file.mimetype.split('/')[1];
+       if(ext=== 'jpeg' || ext === 'png' || ext==='jpg'){
        
        callback(null,true)
        
@@ -45,14 +46,14 @@ const filterImg= (req,file,callback)=>{
 
 
 // ***********  method : GET
-//  *********** Routes : api/artiles
+//  *********** Routes : api/articles
 // ************ Desc :   GET all Articles
 // ************ Access : Public
 
 
 router.get('/', async (req,res)=>{
    try{
-         const articles= await Article.find().populate('auther','name photo')
+         const articles= await Article.find().populate('author','name photo')
          console.log(articles)
          res.json(articles)
          
@@ -75,7 +76,7 @@ router.get('/article/:id', async (req,res)=>{
   
   try{
 
-          const article= await Article.find(req.params._id).populate('author','name avatar');
+          const article= await Article.find(req.params._id).populate('author','name photo');
           
           res.json(article)
   }
@@ -94,10 +95,10 @@ router.get('/article/:id', async (req,res)=>{
 // ************ Access : Private
 
 
-router.post('/',[upload.single('avatar'),
+router.post('/',auth,[upload.single('avatar'),
  [ check('title', 'Enter title should be 12  charactors').notEmpty().isLength({min: 12}),
  check('description', 'description should be 30 charactors').isLength({min: 30})
-]], async (req,res)=> {
+],], async (req,res)=> {
       
    const errors=  validationResult(req);
    
@@ -109,12 +110,12 @@ router.post('/',[upload.single('avatar'),
    
    try {
      const newArticle = new Article({
-               auther: req.user.id ,
-               article_avatar,
+             //  author: req.user.id ,
+             //  article_avatar,
                title,
                description,
                catagory,
-               avatar: req.file.filename
+            //   avatar: req.file.filename
                 
              
              })
@@ -157,9 +158,9 @@ router.post('/',[upload.single('avatar'),
      }
       const articleField= {};
       
-      if (title)       articleField.title= title;
-      if (description) article.Field= description;
-      if (catagory)    articleFiled = catagory;
+      if (title)                articleField.title= title;
+      if (description)          article.Field= description;
+      if (catagory)             articleField = catagory;
       if (req.file.filename)     articleField.avatar = req.file.filename;
       
       article = await Article.findByIdAndUpdate(articleId, {$set : articleField});
@@ -176,12 +177,12 @@ router.post('/',[upload.single('avatar'),
    });
    
    
-   // *********** method  : DELETE 
-//  *********** Routes : api/artiles/article/:id
-// ************ Desc   : Remove Article
-// ************ Access : Private
+   // ***********  method  : DELETE 
+   //  **********  Routes : api/artiles/article/:id
+  // ************  Desc   : Remove Article
+  // ************  Access : Private
 
-   router.delete('/artcle/:id', async (req,res)=>{
+   router.delete('/article/:id', async (req,res)=>{
     
     const articleId= req.params.id
     
@@ -219,40 +220,35 @@ check('text','please enter text atleast 2 charactors').isLength({min:3})
 ], async (req,res)=>{
 
 const errors = validationResult(req);
-
+console.log(req.params.id)
 if(!errors.isEmpty()){
     res.status(400).json({errors: errors.array() })
 }
-const {text,_id}= req.body
-console.log(text,id)
+const {text,id}= req.body
+console.log(text)
 
  try{
  
      let user= await User.findOne(req.user.id);
      
-     let article= await Article.find(req.params._id)
-      if(!user){
-      
-    res.status(401).json({msg: 'You don`t have correct autherization to add comment this post'});
-      
-      } 
+     let article= await Article.find(req.params.id)
       if(!article){
       
       res.status(404).json({ msg: 'Article not Found'});
       
       } 
       const newComment= {
-      text,
-      commentby: id
-    //  commentby: req.user.id
+        
+          text, 
+          commentby: req.user.id
       
       }
       
-      comments =  Article.findByIdAndUpdate(req.params.id,{
+      comments = await  Article.findByIdAndUpdate(req.params.id,{
      
              $push: { comments:newComment} },{new: true
      
-     }).populate('comments.commentby','avatar name');
+     }).populate('comments.commentby','photo name');
       
       res.json(comments)
       
@@ -284,7 +280,7 @@ console.log(text,id)
      
      await Article.findByIdAndUpdate(postId,{
      
-      $pull: { comments :req.params._id}
+      $pull: { comments :req.params.id}
       
            },   {new: true});
            
@@ -310,7 +306,7 @@ console.log(text,id)
   router.post('/like/:id', async (req,res)=>{
     
     
-    const articleId = req.params._id;
+    const articleId = req.params.id;
     
     
      try {
@@ -346,10 +342,10 @@ console.log(text,id)
 
   })
      
-     //  ***********  method : Delete
-    //   ***********  Routes : api/artiles/unlike/:di
-   //    ***********  Desc :   Unlike Article
-  //    ************  Access :  private  
+       //  ***********  method : Delete
+      //   ***********  Routes : api/artiles/unlike/:di
+     //    ***********  Desc :   Unlike Article
+    //    ************  Access :  private  
 
 
    router.delete('/unlike/:id', async (req,res)=>{

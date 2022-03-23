@@ -2,9 +2,10 @@ const express = require('express');
 const router = express.Router();
 const config = require('config')
 const bcrypt = require('bcryptjs');
-const jwt =    require(jsonwebtoken)
-const auth = require('../middleware/auth')
-const {check,validationResult} = require ('express-validator');
+const jwt =    require('jsonwebtoken');
+const auth = require('../middleware/auth');
+const User = require('../models/User')
+const {check,validationResult} = require('express-validator');
 
 
 
@@ -17,7 +18,7 @@ const {check,validationResult} = require ('express-validator');
   
        try{
        
-       const user = await findById(req.user.id).select(-password)
+       const user = await findById(req.user.id).select('-password')
        
        res.json(user)
        
@@ -81,7 +82,7 @@ check('password','please enter password').isEmpty()
    
    jwt.sign(payload,config.get('jwtSecret'),{
    
-   // after two hours token will be expired
+   // after 6 days token will be expired
    expiresIn: '6 days'
    
    },

@@ -36,7 +36,15 @@ const ProfileSchema= Schema({
         }
    
           },
-   Skills: [String]
+   Skills: [String],
+   
+   updateAt: {
+   
+   type: Date,
+   default: Date.now
+   
+   
+   }
 
 
 
