@@ -1,5 +1,6 @@
 const express = require('express');
 const router  = express.Router();
+const {check,validationResult}= require('express-validator') 
 const Profile = require('../models/Profile');
 const Article = require('../models/Article');
 const auth    = require('../middleware/auth')
@@ -18,7 +19,7 @@ const Storage= multer.diskStorage({
    
    const ext= file.mimetype.split('/')[1];
    
-   callback(null,`${file.filedname}-${Date.now()}-${file.originalname.trim()}-${ext}`)
+   callback(null,`${file.fieldname}-${Date.now()}-${file.originalname.trim()}-${ext}`)
    }
 
 })
@@ -85,7 +86,7 @@ router.get('/', async (req,res)=>{
           try{
           
             const profile= await Profile({user:userId}).populate('user','photo name');
-            const articles= await Article.find({auther: userId}).populate('author').populate('author','photo name');
+            const articles= await Article.find({auther: userId}).populate('author','photo name');
             
             res.json({profile,articles});
         
@@ -109,7 +110,7 @@ router.get('/', async (req,res)=>{
   // ***********  access :  private
 
     
-   router.post('/myprofile', [auth,upload.single('profile'),
+   router.post('/myprofile',  [auth,upload.single('profile'),
    [
       check('bio','Please enter bio atleast 6 letters or more').not().isLength({min: 20}),
       check('skills','Please enter atleast 2 skills').not().isEmpty()
@@ -150,7 +151,7 @@ router.get('/', async (req,res)=>{
      let profile = await Profile.find({user: req.user.id});
      
      profile = await Profile.findByIdAndUpdate({user: req.user.id},{
-       $set : profileFilds
+       $set : profileFields
      
      },{new:true,upsert:true})
 
