@@ -3,13 +3,13 @@
 const jwt = require('jsonwebtoken');
 const config = require('config');
 
-  module.exports = function (req,re,next){
+  module.exports = function (req,res,next){
 
          const token = req.header('x-auth-token');
          
          if(!token){
          
-         res.status(401).json({msg: 'Autherization denied,token missing'})
+       return  res.status(401).json({msg: 'Autherization denied,token missing'})
         
          }
          
@@ -25,7 +25,7 @@ const config = require('config');
          
          catch(err){
          
-         res.status(401).json({msg: 'Invalid token'})   
+        res.status(401).json({msg: 'Invalid token'})   
             
              }
         

@@ -43,7 +43,7 @@ check('email','please enter valid email',).isEmail(),
 check('password','please enter password').isEmpty()
 
 
-],(req,res)=>{
+], async (req,res)=>{
 
      let errors = validationResult(req);
      

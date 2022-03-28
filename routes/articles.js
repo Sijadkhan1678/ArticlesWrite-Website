@@ -2,7 +2,7 @@
    const express = require('express');
    const router = express.Router();
    const multer = require('multer');
-  const auth   = require('../middleware/auth')
+   const  auth   = require('../middleware/auth')
    const {check,validationResult}= require('express-validator');
 
    const User = require('../models/User');
@@ -52,6 +52,7 @@ const filterImg= (req,file,callback)=>{
 
 
 router.get('/', async (req,res)=>{
+
    try{
          const articles= await Article.find().populate('author','name photo')
          console.log(articles)
@@ -98,7 +99,7 @@ router.get('/article/:id', async (req,res)=>{
 router.post('/',auth,[upload.single('avatar'),
  [ check('title', 'Enter title should be 12  charactors').notEmpty().isLength({min: 12}),
  check('description', 'description should be 30 charactors').isLength({min: 30})
-],], async (req,res)=> {
+]], async (req,res)=> {
       
    const errors=  validationResult(req);
    
@@ -110,12 +111,12 @@ router.post('/',auth,[upload.single('avatar'),
    
    try {
      const newArticle = new Article({
-             //  author: req.user.id ,
-             //  article_avatar,
+               author: req.user.id ,
+               article_avatar,
                title,
                description,
                catagory,
-            //   avatar: req.file.filename
+               avatar: req.file.filename
                 
              
              })
@@ -139,7 +140,7 @@ router.post('/',auth,[upload.single('avatar'),
 // ************ Desc   : update Article
 // ************ Access : Private
 
-   router.put('/artcle/:id',upload.single('avatar'), async (req,res)=>{
+   router.put('/artcle/:id',auth,upload.single('avatar'), async (req,res)=>{
    
     const {title,description,catagory}= req.body
     const articleId= req.params.id
@@ -158,12 +159,12 @@ router.post('/',auth,[upload.single('avatar'),
      }
       const articleField= {};
       
-      if (title)                articleField.title= title;
-      if (description)          article.Field= description;
-      if (catagory)             articleField = catagory;
-      if (req.file.filename)     articleField.avatar = req.file.filename;
+      if (title)                articleField.title = title;
+      if (description)          articleField.description= description;
+      if (catagory)             articleField.catagory = catagory;
+      if (req.file.filename)    articleField.avatar = req.file.filename;
       
-      article = await Article.findByIdAndUpdate(articleId, {$set : articleField});
+      article = await Article.findByIdAndUpdate(articleId, {$set : articleField},{new:true});
 
       res.json(article)
     }
@@ -182,7 +183,7 @@ router.post('/',auth,[upload.single('avatar'),
   // ************  Desc   : Remove Article
   // ************  Access : Private
 
-   router.delete('/article/:id', async (req,res)=>{
+   router.delete('/article/:id',auth, async (req,res)=>{
     
     const articleId= req.params.id
     
@@ -214,33 +215,37 @@ router.post('/',auth,[upload.single('avatar'),
    })
 
 
-router.post('/comment/:id',[
+router.post('/comment/:id',[auth,[
 check('text','please enter text atleast 2 charactors').isLength({min:3})
 
-], async (req,res)=>{
+]], async (req,res)=>{
 
 const errors = validationResult(req);
-console.log(req.params.id)
+
+  const {text}= req.body
+
 if(!errors.isEmpty()){
     res.status(400).json({errors: errors.array() })
 }
-const {text,id}= req.body
-console.log(text)
+
 
  try{
  
-     let user= await User.findOne(req.user.id);
+     let user = await User.findById(req.user.id);
+     if(!user){
+       return res.status(404).json({ msg: 'User not autherized'})
+     }
      
-     let article= await Article.find(req.params.id)
+     let article= await Article.find({_id:req.params.id})
       if(!article){
       
       res.status(404).json({ msg: 'Article not Found'});
       
       } 
       const newComment= {
-        
-          text, 
-          commentby: req.user.id
+
+         text, 
+          commentby: req.user.id 
       
       }
       
@@ -262,7 +267,7 @@ console.log(text)
 
 })
 
-  router.delete('/uncomment/:id',async (req,res)=>{
+  router.delete('/uncomment/:id',auth,async (req,res)=>{
        
     const articleId= req.body._id
       try{
@@ -282,7 +287,8 @@ console.log(text)
      
       $pull: { comments :req.params.id}
       
-           },   {new: true});
+           },   
+      {new: true});
            
            
      res.json('comment successfully deleted')
@@ -303,7 +309,7 @@ console.log(text)
  // ************  Access : private
 
 
-  router.post('/like/:id', async (req,res)=>{
+  router.post('/like/:id', auth, async (req,res)=>{
     
     
     const articleId = req.params.id;
@@ -348,7 +354,7 @@ console.log(text)
     //    ************  Access :  private  
 
 
-   router.delete('/unlike/:id', async (req,res)=>{
+   router.delete('/unlike/:id',auth, async (req,res)=>{
     
      let articleId= req.params.id;
      
