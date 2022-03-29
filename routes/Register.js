@@ -26,6 +26,7 @@ const User = require('../models/User');
     }
     
     const {name,email,password}= req.body
+    console.log(name,email,password)
     
   try{  
   
@@ -50,6 +51,7 @@ const User = require('../models/User');
      user.password= await bcrypt.hash(password,salt);
      
      await user.save();
+     console.log(user.password)
     
     const payload= {
     user :   {
