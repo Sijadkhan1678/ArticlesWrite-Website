@@ -85,7 +85,7 @@ router.get('/', async (req,res)=>{
     
           try{
           
-            const profile= await Profile({user:userId}).populate('user','photo name');
+            const profile= await Profile.findOne({user:userId}).populate('user','photo name');
             const articles= await Article.find({auther: userId}).populate('author','photo name');
             
             res.json({profile,articles});
@@ -105,21 +105,24 @@ router.get('/', async (req,res)=>{
     
     
    // ***********  Method :  post
-  // ***********  Route :   api/myprofile/:id
-  // ***********  Disc  :   user upadate profile
+  // ***********  Route :   api/myprofile
+  // ***********  Disc  :   user create or upadate profile
   // ***********  access :  private
 
     
    router.post('/myprofile',  [auth,upload.single('profile'),
    [
       check('bio','Please enter bio atleast 6 letters or more').not().isLength({min: 20}),
-      check('skills','Please enter atleast 2 skills').not().isEmpty()
+    
    
    
    ]
    
    ],async (req,res)=>{
-
+    const errors = validationResult(req);
+    if(!errors.isEmpty){
+       return  res.status(400).json({erros: errors.array()})
+    }
     const {bio,facebook,twitter,github,instagram,skills}= req.body;
     
     const file = req.file
@@ -130,32 +133,32 @@ router.get('/', async (req,res)=>{
     if(twitter)  profileFields.social.twitter  = twitter;
     if(github)   profileFields.social.github  = github;
     if(github)   profileFields.social.instagram  = instagram;
-    if(skills)   profileFields.skills= skills;
+    if(skills)   profileFields.skills= skills.split(' ');
     
    
    try {
    
-    let user = await User.findOne(req.user.id);
-    if(!user){
+   // let user = await User.findOne({user:req.user.id});
+    //if(!user){
     
-    return res.status(404).json({msg: 'User not found'});
-    }
+    //return res.status(404).json({msg: 'User not found'});
+   // }
     
     if(file){
    
-    user.photo = file.filename
+      User.photo = file.filename
     
     
     } 
          
-     let profile = await Profile.find({user: req.user.id});
+     //let profile = await Profile.findOne({user: req.user.id});
      
-     profile = await Profile.findByIdAndUpdate({user: req.user.id},{
+     let profile = await Profile.findOneAndUpdate({user: req.user.id},{
        $set : profileFields
      
-     },{new:true,upsert:true})
+     },{new:true,upsert:true}).populate('user', 'name  photo')
 
-     res.json({user,profile})
+     res.json(profile)
    
    }
    catch(err){

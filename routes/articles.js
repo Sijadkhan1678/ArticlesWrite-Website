@@ -78,7 +78,7 @@ router.get('/article/:id', async (req,res)=>{
   try{
 
           const article= await Article.find(req.params._id).populate('author','name photo');
-          
+          console.log(article._id)
           res.json(article)
   }
   catch(err){
@@ -91,7 +91,7 @@ router.get('/article/:id', async (req,res)=>{
 })
 
 // *********** method : POST 
-//  *********** Routes : api/artiles
+//  *********** Routes : api/articles
 // ************ Desc :   Add Article
 // ************ Access : Private
 
@@ -107,16 +107,16 @@ router.post('/',auth,[upload.single('avatar'),
        return res.status(400).json({errors: errors.array()})
      } 
    const {title,description,catagory} = req.body;
-  
+   const avatar = req.filename
    
    try {
      const newArticle = new Article({
                author: req.user.id ,
-               article_avatar,
+               avatar,
                title,
                description,
                catagory,
-               avatar: req.file.filename
+               
                 
              
              })
@@ -249,13 +249,15 @@ if(!errors.isEmpty()){
       
       }
       
-      comments = await  Article.findByIdAndUpdate(req.params.id,{
+      article = await Article.findByIdAndUpdate(req.params.id,{
      
              $push: { comments:newComment} },{new: true
      
      }).populate('comments.commentby','photo name');
+
+    
       
-      res.json(comments)
+      res.json(article)
       
  }
  catch(err){

@@ -36,7 +36,7 @@ const ProfileSchema= Schema({
         }
    
           },
-   Skills: [String],
+   skills: [String],
    
    updateAt: {
    
